@@ -184,6 +184,6 @@ class GoogleSearchScraper(BaseScraper):
                         browser.close()
         except Exception as e:
             logger.exception(f"Google Search Playwright scraper failed: {e}")
-            print(f"  [Google Search Error] {e}")")
+            print(f"  [Google Search Error] {e}")
 
         return leads
