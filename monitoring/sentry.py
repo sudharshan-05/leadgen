@@ -5,9 +5,6 @@ from __future__ import annotations
 
 import logging
 import sentry_sdk
-from sentry_sdk.integrations.celery import CeleryIntegration
-from sentry_sdk.integrations.fastapi import FastAPIIntegration
-from sentry_sdk.integrations.logging import LoggingIntegration
 
 import config
 
@@ -20,19 +17,23 @@ def init_sentry(service_name: str = "platform") -> None:
         logger.info("Sentry DSN is not set. Skipping error-reporting integration.")
         return
         
-    sentry_logging = LoggingIntegration(
-        level=logging.INFO,        # Capture info/warn/error breadcrumbs
-        event_level=logging.ERROR   # Send errors as events
-    )
+    integrations = []
+    try:
+        from sentry_sdk.integrations.logging import LoggingIntegration
+        sentry_logging = LoggingIntegration(
+            level=logging.INFO,        # Capture info/warn/error breadcrumbs
+            event_level=logging.ERROR   # Send errors as events
+        )
+        integrations.append(sentry_logging)
+    except Exception as e:
+        logger.warning(f"Could not load sentry LoggingIntegration: {e}")
     
     try:
+        # In sentry-sdk 2.x, integrations like FastAPI and Celery are auto-discovered
+        # and enabled by default without needing manual registration.
         sentry_sdk.init(
             dsn=dsn,
-            integrations=[
-                sentry_logging,
-                CeleryIntegration(),
-                FastAPIIntegration()
-            ],
+            integrations=integrations,
             traces_sample_rate=1.0 if getattr(config, "DEBUG", False) else 0.1,
             environment=config.ENV,
             release=f"lead-agent@{service_name}"
@@ -40,3 +41,4 @@ def init_sentry(service_name: str = "platform") -> None:
         logger.info(f"Sentry SDK initialized successfully for: {service_name}")
     except Exception as e:
         logger.error(f"Failed to initialize Sentry SDK: {e}")
+
