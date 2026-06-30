@@ -142,7 +142,6 @@ def main() -> int:
             uvicorn.run("api.main:app", host="0.0.0.0", port=8000, reload=False)
         elif args.service == "scheduler":
             logger.info("Starting APScheduler campaigns daemon...")
-            from scheduler.scheduler.py import run_scheduler # Wait, scheduler is imported from scheduler.scheduler
             from scheduler.scheduler import run_scheduler
             run_scheduler()
         elif args.service == "agent":
