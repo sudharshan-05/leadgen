@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.git/
+.gitignore
+.env
+*.db
+logs/
+exports/
+outputs/
+database_backup/
+.agents/
+.gemini/
+*.xlsx
+*.log
